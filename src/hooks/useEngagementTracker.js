@@ -99,11 +99,12 @@ export function useEngagementTracker(apiUrl) {
             });
 
             if (!response.ok) {
-                console.warn(`[Engagement] Server returned ${response.status}`);
+                const errorBody = await response.text();
+                console.warn(`[Engagement] Server returned ${response.status}:`, errorBody);
                 return;
             }
 
-            const result = await response.json();
+            const result = JSON.parse(await response.text());
             if (result.action === 'SEND_POPUP' && result.message) {
                 console.log('[Engagement] Triggering popup message!');
                 window.dispatchEvent(new CustomEvent('ms-engagement-popup', {
