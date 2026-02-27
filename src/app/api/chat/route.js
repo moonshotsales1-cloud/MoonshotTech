@@ -27,10 +27,19 @@ export async function POST(req) {
             return NextResponse.json({ error: 'Failed to fetch from n8n', details: errorText }, { status: response.status });
         }
 
-        const data = await response.json();
-        return NextResponse.json(data);
+        const data = await response.text();
+        try {
+            const jsonData = JSON.parse(data);
+            return NextResponse.json(jsonData);
+        } catch (e) {
+            console.log('N8N chat returned non-JSON response:', data);
+            return NextResponse.json({ output: 'Error: Could not parse response from assistant.' });
+        }
     } catch (error) {
         console.error('Chat API Error:', error);
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+        return NextResponse.json({
+            error: 'Internal Server Error',
+            message: error.message
+        }, { status: 500 });
     }
 }
