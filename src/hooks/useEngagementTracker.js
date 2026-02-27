@@ -30,17 +30,20 @@ export function useEngagementTracker(apiUrl) {
         let msuid = urlParams.get('msuid');
 
         if (msuid) {
+            console.log(`[Engagement] Identity captured from URL: ${msuid}`);
             localStorage.setItem('ms_uid_react', msuid);
         } else {
-            // Re-append if missing from URL but present in storage (User request for consistency)
             const storedUid = localStorage.getItem('ms_uid_react');
             if (storedUid && typeof window !== 'undefined') {
-                const newUrl = new URL(window.location.href);
-                newUrl.searchParams.set('msuid', storedUid);
-                window.history.replaceState(null, '', newUrl.toString());
+                const currentUrl = new URL(window.location.href);
+                if (currentUrl.searchParams.get('msuid') !== storedUid) {
+                    console.log(`[Engagement] Re-applying identity to URL: ${storedUid}`);
+                    currentUrl.searchParams.set('msuid', storedUid);
+                    window.history.replaceState(null, '', currentUrl.toString());
+                }
             }
         }
-    }, [pathname]); // Re-run on navigation
+    }, [pathname]); // Re-run on navigation to ensure URL consistency
 
     // Track Activity
     useEffect(() => {
