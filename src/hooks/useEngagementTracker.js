@@ -100,7 +100,7 @@ export function useEngagementTracker(apiUrl) {
 
             if (!response.ok) {
                 const errorBody = await response.text();
-                console.warn(`[Engagement] Server returned ${response.status}:`, errorBody);
+                console.warn(`[Engagement] Server 500 Error: ${errorBody}`);
                 return;
             }
 
