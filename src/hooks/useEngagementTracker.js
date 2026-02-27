@@ -103,10 +103,11 @@ export function useEngagementTracker(apiUrl) {
             const result = await response.json();
             if (result.action === 'SEND_POPUP' && result.message) {
                 console.log('[Engagement] Triggering popup message!');
-                // Dispatch a custom event that MoonshotChat can listen to
                 window.dispatchEvent(new CustomEvent('ms-engagement-popup', {
                     detail: { message: result.message }
                 }));
+            } else {
+                console.log(`[Engagement] Silent response from server: ${result.reason || 'No action needed'}`);
             }
         } catch (err) {
             console.warn('[Engagement] tracker failed to send event:', err);
