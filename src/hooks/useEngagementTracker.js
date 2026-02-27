@@ -15,14 +15,22 @@ export function useEngagementTracker(apiUrl) {
     const startTimeRef = useRef(Date.now());
     const [isActiveTab, setIsActiveTab] = useState(true);
 
-    // Initialize Session ID
+    // Initialize Session & User Identity
     useEffect(() => {
+        // Handle Session ID
         let sid = localStorage.getItem('ms_sid_react');
         if (!sid) {
-            sid = 'sr_' + Math.random().toString(36).substr(2, 9);
+            sid = 'sr_' + Math.random().toString(36).substring(2, 11);
             localStorage.setItem('ms_sid_react', sid);
         }
         setSessionId(sid);
+
+        // Handle User Identity from URL (?msuid=...)
+        const urlParams = new URLSearchParams(window.location.search);
+        const msuid = urlParams.get('msuid');
+        if (msuid) {
+            localStorage.setItem('ms_uid_react', msuid);
+        }
     }, []);
 
     // Track Activity
@@ -55,9 +63,12 @@ export function useEngagementTracker(apiUrl) {
         const inactivitySeconds = Math.floor((Date.now() - lastActivityRef.current) / 1000);
         const currentPageTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
 
+        const uid = localStorage.getItem('ms_uid_react');
+
         const payload = {
             event_type: eventType,
             session_id: sessionId,
+            user_id: uid,
             page_url: window.location.href,
             page_name: document.title || pathname,
             time_on_page_seconds: currentPageTime,

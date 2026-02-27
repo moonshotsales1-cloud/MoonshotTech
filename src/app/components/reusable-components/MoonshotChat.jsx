@@ -87,6 +87,7 @@ const MoonshotChat = ({ apiUrl = '/api/chat', engagementApiUrl = '/api/engagemen
                 body: JSON.stringify({
                     message: messageText,
                     sessionId: getSessionId(),
+                    user_id: localStorage.getItem('ms_uid_react'),
                     event_type: 'user_message' // Explicitly mark as a message event
                 })
             });
