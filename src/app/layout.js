@@ -6,6 +6,7 @@ import {
   Urbanist,
 } from "next/font/google";
 import "./globals.css";
+import MoonshotChat from "./components/reusable-components/MoonshotChat";
 
 const sora = Sora({
   variable: "--font-sora",
@@ -57,6 +58,7 @@ export default function RootLayout({ children }) {
         className={`${sora.variable} ${playfair.variable} ${poppins.variable} ${inter.variable} ${urbanist.variable} antialiased`}
       >
         {children}
+        <MoonshotChat />
       </body>
     </html>
   );
