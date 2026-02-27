@@ -27,11 +27,20 @@ export function useEngagementTracker(apiUrl) {
 
         // Handle User Identity from URL (?msuid=...)
         const urlParams = new URLSearchParams(window.location.search);
-        const msuid = urlParams.get('msuid');
+        let msuid = urlParams.get('msuid');
+
         if (msuid) {
             localStorage.setItem('ms_uid_react', msuid);
+        } else {
+            // Re-append if missing from URL but present in storage (User request for consistency)
+            const storedUid = localStorage.getItem('ms_uid_react');
+            if (storedUid && typeof window !== 'undefined') {
+                const newUrl = new URL(window.location.href);
+                newUrl.searchParams.set('msuid', storedUid);
+                window.history.replaceState(null, '', newUrl.toString());
+            }
         }
-    }, []);
+    }, [pathname]); // Re-run on navigation
 
     // Track Activity
     useEffect(() => {
@@ -79,21 +88,28 @@ export function useEngagementTracker(apiUrl) {
         };
 
         try {
+            console.log(`[Engagement] Sending ${eventType} for session ${sessionId}...`);
             const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
 
+            if (!response.ok) {
+                console.warn(`[Engagement] Server returned ${response.status}`);
+                return;
+            }
+
             const result = await response.json();
             if (result.action === 'SEND_POPUP' && result.message) {
+                console.log('[Engagement] Triggering popup message!');
                 // Dispatch a custom event that MoonshotChat can listen to
                 window.dispatchEvent(new CustomEvent('ms-engagement-popup', {
                     detail: { message: result.message }
                 }));
             }
         } catch (err) {
-            console.warn('Engagement tracker failed to send event:', err);
+            console.warn('[Engagement] tracker failed to send event:', err);
         }
     };
 
