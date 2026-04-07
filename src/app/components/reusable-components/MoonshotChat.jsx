@@ -1,6 +1,46 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { useEngagementTracker } from '@/hooks/useEngagementTracker';
+import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion';
+
+const MagneticWrapper = ({ children, radius = 50 }) => {
+    const x = useMotionValue(0);
+    const y = useMotionValue(0);
+
+    const mouseX = useSpring(x, { stiffness: 150, damping: 15, mass: 0.1 });
+    const mouseY = useSpring(y, { stiffness: 150, damping: 15, mass: 0.1 });
+
+    const handleMouseMove = (e) => {
+        const { clientX, clientY } = e;
+        const { height, width, left, top } = e.currentTarget.getBoundingClientRect();
+        const middleX = clientX - (left + width / 2);
+        const middleY = clientY - (top + height / 2);
+
+        const distance = Math.sqrt(middleX * middleX + middleY * middleY);
+        if (distance < radius) {
+            x.set(middleX * 0.4);
+            y.set(middleY * 0.4);
+        } else {
+            x.set(0);
+            y.set(0);
+        }
+    };
+
+    const handleMouseLeave = () => {
+        x.set(0);
+        y.set(0);
+    };
+
+    return (
+        <motion.div
+            style={{ x: mouseX, y: mouseY, display: 'inline-flex', zIndex: 1 }}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+        >
+            {children}
+        </motion.div>
+    );
+};
 
 /**
  * MoonshotChat Component
@@ -330,52 +370,95 @@ const MoonshotChat = ({ apiUrl = '/api/chat', engagementApiUrl = '/api/engagemen
                     </div>
 
                     <div style={styles.messagesArea}>
+                        <AnimatePresence>
                         {messages.map((msg, i) => (
-                            <div key={i} style={{ ...styles.message, alignSelf: msg.isUser ? 'flex-end' : 'flex-start' }}>
-                                <div style={{
+                            <motion.div 
+                                key={i} 
+                                initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                transition={{ type: "spring", stiffness: 220, damping: 20 }}
+                                style={{ ...styles.message, alignSelf: msg.isUser ? 'flex-end' : 'flex-start' }}
+                            >
+                                <MagneticWrapper radius={40}>
+                                <motion.div 
+                                    whileHover={{
+                                        borderTopLeftRadius: "28px",
+                                        borderTopRightRadius: "28px",
+                                        borderBottomRightRadius: msg.isUser ? "6px" : "28px",
+                                        borderBottomLeftRadius: msg.isUser ? "28px" : "6px",
+                                        scale: 1.01,
+                                    }}
+                                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                    style={{
                                     ...styles.bubble,
-                                    backgroundColor: msg.isUser ? '#7c3aed' : 'rgba(255,255,255,0.08)',
+                                    background: msg.isUser ? 'linear-gradient(135deg, rgba(124,58,237,0.95) 0%, rgba(91,33,182,0.95) 100%)' : 'rgba(255,255,255,0.08)',
+                                    backdropFilter: 'blur(16px)',
+                                    WebkitBackdropFilter: 'blur(16px)',
+                                    border: '1px solid rgba(255,255,255,0.1)',
                                     color: msg.isUser ? 'white' : '#e5e7eb',
-                                    borderBottomRightRadius: msg.isUser ? '2px' : '12px',
-                                    borderBottomLeftRadius: msg.isUser ? '12px' : '2px'
+                                    borderBottomRightRadius: msg.isUser ? '8px' : '24px',
+                                    borderBottomLeftRadius: msg.isUser ? '24px' : '8px',
+                                    borderTopLeftRadius: '24px',
+                                    borderTopRightRadius: '24px',
+                                    boxShadow: msg.isUser ? '0 8px 32px -6px rgba(124,58,237,0.5), inset 0 0 20px rgba(124,58,237,0.4)' : 'none'
                                 }}>
                                     {msg.text}
-                                </div>
-                            </div>
+                                </motion.div>
+                                </MagneticWrapper>
+                            </motion.div>
                         ))}
+                        </AnimatePresence>
 
                         {suggestions.length > 0 && (
-                            <div style={styles.suggestions}>
+                            <motion.div 
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.2 }}
+                                style={styles.suggestions}
+                            >
                                 {suggestions.map((s, i) => (
-                                    <button
+                                    <motion.button
+                                        whileHover={{ scale: 1.05, backgroundColor: 'rgba(124,58,237,0.3)' }}
+                                        whileTap={{ scale: 0.95 }}
                                         key={i}
                                         onClick={() => handleSend(s)}
-                                        style={styles.chip}
+                                        style={{...styles.chip, backdropFilter: 'blur(8px)', border: '1px solid rgba(124,58,237,0.5)', borderRadius: '24px'}}
                                     >
                                         {s}
-                                    </button>
+                                    </motion.button>
                                 ))}
-                            </div>
+                            </motion.div>
                         )}
                         <div ref={messagesEndRef} />
                     </div>
 
                     <div style={styles.inputArea}>
-                        <div style={styles.inputWrapper}>
+                        <motion.div 
+                            whileFocusWithin={{ 
+                                scale: 1.01, 
+                                boxShadow: '0 0 0 1px rgba(124,58,237,0.5), 0 12px 40px rgba(124,58,237,0.2)', 
+                                backgroundColor: 'rgba(255,255,255,0.08)'
+                            }}
+                            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                            style={{...styles.inputWrapper, background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.1)'}}
+                        >
                             <input
                                 type="text"
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
                                 onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                                 placeholder="Ask anything..."
-                                style={styles.input}
+                                style={{ ...styles.input, background: 'transparent', color: '#f3f4f6' }}
                             />
-                            <button 
+                            <MagneticWrapper radius={30}>
+                            <motion.button 
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
                                 onClick={toggleRecording} 
                                 style={{ 
                                     ...styles.sendBtn, 
                                     background: isRecording ? '#ef4444' : 'transparent', 
-                                    color: isRecording ? 'white' : '#6b7280',
+                                    color: isRecording ? 'white' : 'rgba(255,255,255,0.6)',
                                     marginRight: '2px'
                                 }}
                                 aria-label={isRecording ? "Stop recording" : "Start recording"}
@@ -385,11 +468,19 @@ const MoonshotChat = ({ apiUrl = '/api/chat', engagementApiUrl = '/api/engagemen
                                 ) : (
                                     <svg style={{ width: 18, height: 18 }} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8" /></svg>
                                 )}
-                            </button>
-                            <button onClick={() => handleSend()} style={styles.sendBtn}>
+                            </motion.button>
+                            </MagneticWrapper>
+                            <MagneticWrapper radius={30}>
+                            <motion.button 
+                                whileHover={{ scale: 1.1, filter: 'brightness(1.2)' }}
+                                whileTap={{ scale: 0.9 }}
+                                onClick={() => handleSend()} 
+                                style={{ ...styles.sendBtn, background: 'linear-gradient(135deg, #7c3aed 0%, #2563eb 100%)', border: '1px solid rgba(255,255,255,0.2)', boxShadow: '0 4px 12px rgba(124,58,237,0.3)' }}
+                            >
                                 <svg style={{ width: 18, height: 18 }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                            </button>
-                        </div>
+                            </motion.button>
+                            </MagneticWrapper>
+                        </motion.div>
                     </div>
                 </div>
             )}
@@ -399,7 +490,7 @@ const MoonshotChat = ({ apiUrl = '/api/chat', engagementApiUrl = '/api/engagemen
 
 const styles = {
     // Main container — just anchors the toggle button
-    container: { position: 'fixed', bottom: '28px', right: '28px', zIndex: 10000, fontFamily: 'Inter, system-ui, sans-serif' },
+    container: { position: 'fixed', bottom: '28px', right: '28px', zIndex: 10000, fontFamily: 'Inter, "SF Pro", system-ui, sans-serif', letterSpacing: '-0.02em' },
 
     // Chat toggle button
     toggle: { width: '64px', height: '64px', borderRadius: '50%', background: 'linear-gradient(135deg, #7c3aed 0%, #2563eb 100%)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 24px rgba(109, 40, 217, 0.55)', transition: 'transform 0.2s ease, box-shadow 0.2s ease', position: 'relative' },
@@ -468,8 +559,8 @@ const styles = {
     },
 
     // Chat window
-    window: { position: 'fixed', bottom: '108px', right: '28px', zIndex: 10001, width: '380px', height: '580px', background: '#0e0e14', border: '1px solid rgba(124, 58, 237, 0.25)', borderRadius: '20px', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)', overflow: 'hidden' },
-    header: { background: 'linear-gradient(135deg, #7c3aed 0%, #2563eb 100%)', padding: '16px', display: 'flex', alignItems: 'center', gap: '12px' },
+    window: { position: 'fixed', bottom: '108px', right: '28px', zIndex: 10001, width: '380px', height: '580px', background: 'rgba(14, 14, 20, 0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(124, 58, 237, 0.25)', borderRadius: '24px', display: 'flex', flexDirection: 'column', boxShadow: '0 30px 80px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.1)', overflow: 'hidden' },
+    header: { background: 'linear-gradient(135deg, rgba(124,58,237,0.8) 0%, rgba(37,99,235,0.6) 100%)', backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(255,255,255,0.1)', padding: '16px', display: 'flex', alignItems: 'center', gap: '12px' },
     avatar: { width: '36px', height: '36px', background: 'rgba(255,255,255,0.2)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' },
     headerTitle: { fontSize: '14px', fontWeight: 'bold', color: 'white' },
     headerSub: { fontSize: '11px', color: 'rgba(255,255,255,0.7)' },
