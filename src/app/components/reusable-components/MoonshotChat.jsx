@@ -503,7 +503,7 @@ const styles = {
         bottom: '108px',   // 28px container + 64px button + 16px gap
         right: '28px',
         zIndex: 10001,
-        width: '300px',
+        width: '340px',
         background: '#111827',
         borderRadius: '20px',
         boxShadow: '0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(124,58,237,0.35), inset 0 1px 0 rgba(255,255,255,0.05)',
@@ -559,7 +559,7 @@ const styles = {
     },
 
     // Chat window
-    window: { position: 'fixed', bottom: '108px', right: '28px', zIndex: 10001, width: '380px', height: '580px', background: 'rgba(14, 14, 20, 0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(124, 58, 237, 0.25)', borderRadius: '24px', display: 'flex', flexDirection: 'column', boxShadow: '0 30px 80px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.1)', overflow: 'hidden' },
+    window: { position: 'fixed', bottom: '108px', right: '28px', zIndex: 10001, width: '440px', height: '620px', background: 'rgba(14, 14, 20, 0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(124, 58, 237, 0.25)', borderRadius: '24px', display: 'flex', flexDirection: 'column', boxShadow: '0 30px 80px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.1)', overflow: 'hidden' },
     header: { background: 'linear-gradient(135deg, rgba(124,58,237,0.8) 0%, rgba(37,99,235,0.6) 100%)', backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(255,255,255,0.1)', padding: '16px', display: 'flex', alignItems: 'center', gap: '12px' },
     avatar: { width: '36px', height: '36px', background: 'rgba(255,255,255,0.2)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' },
     headerTitle: { fontSize: '14px', fontWeight: 'bold', color: 'white' },
