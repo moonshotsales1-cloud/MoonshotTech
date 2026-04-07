@@ -1,12 +1,4 @@
 {
-    "functions": {
-        "api/chat.js": {
-            "maxDuration": 60
-        },
-        "api/transcribe.js": {
-            "maxDuration": 10
-        }
-    },
     "rewrites": [
         {
             "source": "/",

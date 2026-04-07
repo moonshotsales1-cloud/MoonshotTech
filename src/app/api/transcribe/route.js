@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 
+export const maxDuration = 15; // Increased slightly for stability during Deepgram peaks
+
 export async function POST(req) {
     try {
         let body;
