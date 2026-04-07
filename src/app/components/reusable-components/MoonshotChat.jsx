@@ -1,4 +1,5 @@
 "use client";
+// Build trigger: 2026-04-07-v2
 import React, { useState, useEffect, useRef } from 'react';
 import { useEngagementTracker } from '@/hooks/useEngagementTracker';
 import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion';
