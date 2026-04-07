@@ -19,9 +19,10 @@ export async function POST(req) {
 
         const deepgramApiKey = process.env.DEEPGRAM_API_KEY;
         if (!deepgramApiKey) {
-            console.error('DEEPGRAM_API_KEY not configured');
+            console.error('Transcription Error: DEEPGRAM_API_KEY is not defined');
             return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
         }
+        console.log('Transcription Debug: API Key exists (truncated):', deepgramApiKey.substring(0, 5) + '...');
 
         // Strip data URL prefix if present (e.g. "data:audio/webm;base64,AAAA...")
         let base64Data = audio;
@@ -67,13 +68,15 @@ export async function POST(req) {
         // Call Deepgram
         const deepgramUrl = 'https://api.deepgram.com/v1/listen?model=nova-2&smart_format=true&punctuate=true&language=en';
 
+        console.log(`Transcription Debug: Calling Deepgram for ${contentType}...`);
+
         const deepgramResponse = await fetch(deepgramUrl, {
             method: 'POST',
             headers: {
                 'Authorization': `Token ${deepgramApiKey}`,
                 'Content-Type': contentType,
             },
-            body: audioBuffer
+            body: new Uint8Array(audioBuffer)
         });
 
         const rawText = await deepgramResponse.text();
