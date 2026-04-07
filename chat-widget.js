@@ -343,4 +343,59 @@ async function transcribeAudio(base64Audio, mimeType) {
     }
 }
 
-console.log('🚀 Moonshot chat widget initialised');
+// ─── Magnetic & Organic Interaction ────────────────────────────────────────────
+document.addEventListener('mousemove', (e) => {
+    // Only run if chat is open
+    if (chatWindow.classList.contains('hidden')) return;
+
+    // Elements that should react to the cursor
+    const magneticElements = document.querySelectorAll('.message-content, .send-button, .mic-button');
+    const triggerDistance = 50; // 50px radius as requested
+    const pullStrength = 0.15;
+
+    magneticElements.forEach(el => {
+        const rect = el.getBoundingClientRect();
+        if (rect.width === 0 && rect.height === 0) return;
+
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+
+        const distX = e.clientX - centerX;
+        const distY = e.clientY - centerY;
+        const distance = Math.sqrt(distX * distX + distY * distY);
+
+        // Calculate dynamic radius to encompass the element plus 50px
+        const activeRadius = triggerDistance + Math.max(rect.width, rect.height) / 2;
+
+        if (distance < activeRadius) {
+            // Apply magnetic pull
+            const moveX = distX * pullStrength;
+            const moveY = distY * pullStrength;
+            
+            // Cap movement for subtlety
+            const maxMove = el.classList.contains('message-content') ? 6 : 10;
+            const finalX = Math.max(-maxMove, Math.min(maxMove, moveX));
+            const finalY = Math.max(-maxMove, Math.min(maxMove, moveY));
+            
+            let scale = '';
+            if (el.classList.contains('send-button') || el.classList.contains('mic-button')) {
+                scale = distance < rect.width ? 'scale(1.1) ' : 'scale(1.05) ';
+            }
+
+            el.style.transform = `${scale}translate(${finalX}px, ${finalY}px)`;
+            
+            if (el.classList.contains('message-content')) {
+                // organic liquid movement adjustments
+                el.style.transition = 'transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), border-radius 0.3s ease';
+            }
+        } else {
+            // Reset state
+            el.style.transform = '';
+            if (el.classList.contains('message-content')) {
+                el.style.transition = ''; // Return to default css transition
+            }
+        }
+    });
+});
+
+console.log('🚀 Moonshot chat widget initialised with modern bubbly aesthetic & magnetic interactions');
